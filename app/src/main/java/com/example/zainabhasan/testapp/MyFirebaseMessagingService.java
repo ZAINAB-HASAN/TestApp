@@ -36,7 +36,6 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             showNotificationMessage(this,title,message,null,resultIntent);
         }
 
-
        // Log.e(TAG, "From: " + remoteMessage.getFrom());
 
     }
