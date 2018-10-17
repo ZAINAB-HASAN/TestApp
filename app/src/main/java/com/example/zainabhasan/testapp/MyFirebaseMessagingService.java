@@ -13,50 +13,39 @@ import com.google.firebase.messaging.RemoteMessage;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
-    private static final String TAG = MyFirebaseMessagingService.class.getSimpleName();
-
-    private NotificationUtils notificationUtils;
-    public static OnNotificationReceiver onNotificationReceiver;
-    private String title ,message;
+    private static final String TAG = "FirebaseMessageService";
+    String message;
 
     @Override
     public void onMessageReceived(RemoteMessage remoteMessage) {
-        Log.e(TAG, "onMessageReceived: >>>>>>>"+remoteMessage.toString() );
-        if(onNotificationReceiver!=null){
-            title= remoteMessage.getData().get("title");
-            message= remoteMessage.getData().get("message");
-            Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
-            resultIntent.putExtra("title",title);
-            resultIntent.putExtra("message",message );
+        Log.d(TAG, "From: " + remoteMessage.getNotification());
 
-            if (onNotificationReceiver!=null){
-                onNotificationReceiver.onFCMReceiver(resultIntent);
-            }
+        Intent resultIntent = new Intent(getApplicationContext(), MainActivity.class);
+        resultIntent.putExtra("message", message);
 
-            showNotificationMessage(this,title,message,null,resultIntent);
+
+        if (remoteMessage.getData().size() > 0) {
+            Log.d(TAG, "FriendlyMessage data payload: " + remoteMessage.getData());
+            message  =  remoteMessage.getData().get("message");
+            showNotificationMessageWithBigImage(getApplicationContext(), message, message, String.valueOf( System.currentTimeMillis() ), resultIntent);
+        }else {
+            Log.d(TAG, "FriendlyMessage Notification Body: " + remoteMessage.getNotification().getBody());
+            message  =  remoteMessage.getNotification().getBody();
+            showNotificationMessageWithBigImage(getApplicationContext(), message, message, String.valueOf( System.currentTimeMillis() ), resultIntent);
+
         }
-
-       // Log.e(TAG, "From: " + remoteMessage.getFrom());
+       // String imageUri = remoteMessage.getData().get("image");
+        //sendNotification(message, bitmap);
 
     }
 
-
-    /**
-     * Showing notification with text only
-     */
-    private void showNotificationMessage(Context context, String title, String message, String timeStamp, Intent intent) {
-        notificationUtils = new NotificationUtils(context);
+    private void showNotificationMessageWithBigImage(Context context, String title, String message, String timeStamp, Intent intent) {
+        Log.d(TAG, "From: " + message);
+        NotificationUtils notificationUtils = new NotificationUtils(getApplicationContext());
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
         notificationUtils.showNotificationMessage(title, message, timeStamp, intent);
     }
-    /*
-     * Showing notification with text and imag
-     */
-    private void showNotificationMessageWithBigImage(Context context, String title, String message, String timeStamp, Intent intent, String imageUrl) {
 
-        notificationUtils = new NotificationUtils(context);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        notificationUtils.showNotificationMessage(title, message, timeStamp, intent, imageUrl);
-    }
+
 }
 //can't finish github sharing process
